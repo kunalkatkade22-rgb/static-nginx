@@ -1,8 +1,220 @@
 <!DOCTYPE html>
 <html lang="en">
-<head><meta charset="UTF-8"><title>My Docker Site</title></head>
-<body style="font-family:sans-serif;text-align:center;margin-top:15vh">
-  <h1>Hello from Docker + nginx 🐳</h1>
-  <p>Served from a custom image.</p>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Docker practice yard</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%93%A6%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#E9F1F0;--ink:#10243A;--muted:#51677C;--card:#fff;--line:#C3D5D4;
+  --teal:#1F7A8C;--mustard:#E0A526;--brick:#B5412C;
+  --code-bg:#10243A;--code-ink:#DDEBEA;
+  --sans:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root{--bg:#0C1B2B;--ink:#E6EFEE;--muted:#9DB2C4;--card:#13283D;--line:#244058;--code-bg:#07121D}
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:1.05rem/1.6 var(--sans)}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--mustard);outline-offset:3px}
+.wrap{width:min(1100px,100% - 2rem);margin-inline:auto}
+header.top{padding:1rem 0;display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap}
+.brand{font-weight:800;font-size:1.1rem;text-decoration:none}
+nav{display:flex;gap:1.25rem;flex-wrap:wrap}
+nav a{text-decoration:none;color:var(--muted);font-weight:500}
+nav a:hover{color:var(--ink)}
+
+/* hero */
+.hero{display:grid;grid-template-columns:1.1fr .9fr;gap:2.5rem;align-items:center;padding:3rem 0 4rem}
+h1{font-size:clamp(2.1rem,6vw,3.8rem);line-height:1.04;letter-spacing:-.025em;font-weight:800;margin:0 0 1rem}
+.hero p{color:var(--muted);max-width:46ch;margin:0 0 1.75rem}
+.btn{display:inline-block;background:var(--ink);color:var(--bg);padding:.8rem 1.4rem;border-radius:6px;font-weight:700;text-decoration:none}
+.btn:hover{background:var(--teal);color:#fff}
+.stack{display:grid;gap:6px}
+.row{display:flex;gap:6px}
+.box{--c:var(--teal);flex:var(--w,1);height:54px;border-radius:3px;display:flex;align-items:center;padding:0 10px;
+  background:var(--c) repeating-linear-gradient(90deg,rgba(0,0,0,.16) 0 3px,transparent 3px 14px);
+  font:500 .78rem var(--mono);color:#fff;min-width:0}
+.box span{background:var(--c);padding:2px 7px;border-radius:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.m{--c:var(--mustard);color:#10243A}.b{--c:var(--brick)}
+@media (prefers-reduced-motion:no-preference){
+  .box{animation:drop .6s cubic-bezier(.2,.8,.3,1) both}
+  .row:nth-child(2) .box{animation-delay:.12s}
+  .row:nth-child(3) .box{animation-delay:.24s}
+  @keyframes drop{from{transform:translateY(-28px);opacity:0}}
+}
+
+/* sections */
+section{padding:3rem 0;border-top:1px solid var(--line)}
+h2{font-size:clamp(1.5rem,4vw,2.1rem);letter-spacing:-.015em;margin:0 0 .5rem;font-weight:700}
+.lede{color:var(--muted);margin:0 0 1.75rem;max-width:60ch}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:1rem}
+.card{background:var(--card);border:1px solid var(--line);border-radius:8px;overflow:hidden;display:flex;flex-direction:column}
+.card .bar{height:12px;background:var(--c,var(--teal)) repeating-linear-gradient(90deg,rgba(0,0,0,.18) 0 3px,transparent 3px 12px)}
+.card div.in{padding:1rem 1.1rem 1.2rem;display:flex;flex-direction:column;gap:.5rem;flex:1}
+.card h3{margin:0;font-size:1.15rem}
+.card p{margin:0;color:var(--muted);font-size:.95rem}
+code,pre{font-family:var(--mono);font-size:.85rem}
+.card code{background:var(--code-bg);color:var(--code-ink);padding:.55rem .7rem;border-radius:4px;margin-top:auto;overflow-x:auto;white-space:nowrap}
+
+/* cheat sheet */
+.cmds{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:.75rem}
+.cmd{display:flex;align-items:center;gap:.75rem;background:var(--card);border:1px solid var(--line);border-radius:6px;padding:.6rem .7rem}
+.cmd .t{flex:1;min-width:0}
+.cmd b{display:block;font-size:.92rem}
+.cmd code{display:block;overflow-x:auto;white-space:nowrap;color:var(--muted);padding-bottom:2px}
+button{font:600 .85rem var(--sans);cursor:pointer;border:1px solid var(--ink);background:transparent;color:var(--ink);border-radius:5px;padding:.4rem .8rem;min-height:36px}
+button:hover{background:var(--ink);color:var(--bg)}
+
+/* checklist */
+.prog{height:10px;background:var(--line);border-radius:5px;overflow:hidden;margin:.25rem 0 1.25rem}
+.prog i{display:block;height:100%;width:0;background:var(--teal);transition:width .3s}
+.checks{list-style:none;margin:0;padding:0;display:grid;gap:.5rem}
+.checks label{display:flex;gap:.7rem;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:6px;padding:.7rem .9rem;cursor:pointer}
+.checks input{width:1.15rem;height:1.15rem;accent-color:var(--teal)}
+.checks input:checked+span{text-decoration:line-through;color:var(--muted)}
+#count{font-weight:700}
+
+/* steps */
+ol.steps{padding-left:1.25rem;display:grid;gap:1rem;margin:0}
+ol.steps li::marker{font-weight:800;color:var(--teal)}
+pre{background:var(--code-bg);color:var(--code-ink);padding:.8rem 1rem;border-radius:6px;overflow-x:auto;margin:.4rem 0 0}
+footer{padding:2rem 0 3rem;border-top:1px solid var(--line);color:var(--muted);font-size:.92rem}
+
+@media (max-width:760px){
+  .hero{grid-template-columns:1fr;padding-top:1.5rem;gap:2rem}
+  .box{height:44px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <a class="brand" href="#">Kunal’s Docker lab</a>
+    <nav aria-label="Sections">
+      <a href="#labs">Labs</a><a href="#commands">Commands</a><a href="#progress">Progress</a><a href="#run">Run this page</a>
+    </nav>
+  </header>
+
+  <div class="hero">
+    <div>
+      <h1>Learn Docker by shipping small things.</h1>
+      <p>Six short labs, a command list you can copy, and a checklist that remembers what you have finished. This page is served by nginx inside a container you built yourself.</p>
+      <a class="btn" href="#labs">Start the labs</a>
+    </div>
+    <div class="stack" aria-hidden="true">
+      <div class="row"><div class="box" style="--w:5"><span>nginx:alpine</span></div><div class="box m" style="--w:3"><span>web</span></div></div>
+      <div class="row"><div class="box b" style="--w:3"><span>db</span></div><div class="box" style="--w:5"><span>my-app:1.0</span></div></div>
+      <div class="row"><div class="box m" style="--w:4"><span>compose</span></div><div class="box b" style="--w:2"><span>v1</span></div><div class="box" style="--w:3"><span>cache</span></div></div>
+    </div>
+  </div>
+
+  <section id="labs">
+    <h2>Labs</h2>
+    <p class="lede">Do them in order. Each one adds one idea to the last.</p>
+    <div class="grid">
+      <article class="card"><div class="bar"></div><div class="in"><h3>Run a container</h3><p>Start nginx in the background and open it in the browser.</p><code>docker run -d -p 80:80 nginx</code></div></article>
+      <article class="card" style="--c:var(--mustard)"><div class="bar"></div><div class="in"><h3>Write a Dockerfile</h3><p>Copy this page into an nginx image so it ships with its own server.</p><code>docker build -t myweb .</code></div></article>
+      <article class="card" style="--c:var(--brick)"><div class="bar"></div><div class="in"><h3>Map ports</h3><p>Run the same image on two host ports and see both respond.</p><code>docker run -d -p 8080:80 myweb</code></div></article>
+      <article class="card"><div class="bar"></div><div class="in"><h3>Use a volume</h3><p>Mount a local folder, edit index.html, refresh, and see the change.</p><code>docker run -v $(pwd):/usr/share/nginx/html:ro</code></div></article>
+      <article class="card" style="--c:var(--mustard)"><div class="bar"></div><div class="in"><h3>Docker Compose</h3><p>Describe the container in a YAML file and start it with one command.</p><code>docker compose up -d</code></div></article>
+      <article class="card" style="--c:var(--brick)"><div class="bar"></div><div class="in"><h3>Push to a registry</h3><p>Tag the image with your username and push it to Docker Hub.</p><code>docker push user/myweb:1.0</code></div></article>
+    </div>
+  </section>
+
+  <section id="commands">
+    <h2>Commands</h2>
+    <p class="lede">Press Copy, then paste into your server terminal.</p>
+    <div class="cmds" id="cmds"></div>
+  </section>
+
+  <section id="progress">
+    <h2>Progress</h2>
+    <p class="lede"><span id="count">0 of 7</span> done. Your ticks stay in this browser.</p>
+    <div class="prog" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i id="bar"></i></div>
+    <ul class="checks" id="checks"></ul>
+  </section>
+
+  <section id="run">
+    <h2>Run this page in Docker</h2>
+    <p class="lede">Put index.html, Dockerfile and .dockerignore in one folder on your server, then:</p>
+    <ol class="steps">
+      <li>Build the image
+        <pre>docker build -t myweb:1.0 .</pre></li>
+      <li>Start a container
+        <pre>docker run -d --name myweb -p 80:80 myweb:1.0</pre></li>
+      <li>Open <code>http://&lt;your-server-ip&gt;</code> in a browser. Port 80 must be open in the security group.</li>
+      <li>Stop and remove it when you finish
+        <pre>docker stop myweb &amp;&amp; docker rm myweb</pre></li>
+    </ol>
+  </section>
+
+  <footer>Served by nginx in a container. Edit index.html, rebuild, and run again.</footer>
+</div>
+
+<script>
+var CMDS=[
+ ["List running containers","docker ps"],
+ ["List all containers","docker ps -a"],
+ ["List images","docker images"],
+ ["Follow logs","docker logs -f myweb"],
+ ["Open a shell inside","docker exec -it myweb sh"],
+ ["Stop a container","docker stop myweb"],
+ ["Remove a container","docker rm myweb"],
+ ["Remove an image","docker rmi myweb:1.0"],
+ ["Clean unused data","docker system prune"],
+ ["Inspect details","docker inspect myweb"]
+];
+var TASKS=["Run nginx in a container","Write a Dockerfile","Build and tag an image","Map ports and test in the browser","Mount a volume","Start it with Docker Compose","Push the image to Docker Hub"];
+var KEY="docker-lab-progress";
+
+function copyText(text,btn){
+  function done(){var o=btn.textContent;btn.textContent="Copied";setTimeout(function(){btn.textContent=o},1200)}
+  if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(text).then(done,fallback)}else{fallback()}
+  function fallback(){
+    var t=document.createElement("textarea");t.value=text;t.style.position="fixed";t.style.opacity="0";
+    document.body.appendChild(t);t.select();
+    try{document.execCommand("copy");done()}catch(e){btn.textContent="Select manually"}
+    document.body.removeChild(t);
+  }
+}
+
+var cmdBox=document.getElementById("cmds");
+CMDS.forEach(function(c){
+  var d=document.createElement("div");d.className="cmd";
+  var t=document.createElement("div");t.className="t";
+  var b=document.createElement("b");b.textContent=c[0];
+  var k=document.createElement("code");k.textContent=c[1];
+  t.appendChild(b);t.appendChild(k);
+  var btn=document.createElement("button");btn.type="button";btn.textContent="Copy";
+  btn.setAttribute("aria-label","Copy command: "+c[1]);
+  btn.onclick=function(){copyText(c[1],btn)};
+  d.appendChild(t);d.appendChild(btn);cmdBox.appendChild(d);
+});
+
+var saved=[];
+try{saved=JSON.parse(localStorage.getItem(KEY)||"[]")}catch(e){}
+var list=document.getElementById("checks");
+function update(){
+  var n=list.querySelectorAll("input:checked").length,p=Math.round(n/TASKS.length*100);
+  document.getElementById("count").textContent=n+" of "+TASKS.length;
+  document.getElementById("bar").style.width=p+"%";
+  document.querySelector("[role=progressbar]").setAttribute("aria-valuenow",p);
+  try{localStorage.setItem(KEY,JSON.stringify([].map.call(list.querySelectorAll("input"),function(i){return i.checked})))}catch(e){}
+}
+TASKS.forEach(function(task,i){
+  var li=document.createElement("li"),l=document.createElement("label"),
+      c=document.createElement("input"),s=document.createElement("span");
+  c.type="checkbox";c.checked=!!saved[i];s.textContent=task;c.onchange=update;
+  l.appendChild(c);l.appendChild(s);li.appendChild(l);list.appendChild(li);
+});
+update();
+</script>
 </body>
 </html>
